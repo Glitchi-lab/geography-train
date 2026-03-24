@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Все страны мира — учебная шпаргалка</title>
+
+<style>
+:root {
+  --bg: #020617;
+  --card: #020617;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #38bdf8;
+  --border: #1f2937;
+}
+
+.light {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #020617;
+  --muted: #475569;
+  --accent: #0284c7;
+  --border: #e5e7eb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+header p {
+  margin-top: .5rem;
+  color: var(--muted);
+}
+
+.controls {
+  padding: 1rem;
+  display: flex;
+  gap: .8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  border-bottom: 1px solid var(--border);
+}
+
+button, input, select {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .55rem .8rem;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+main {
+  max-width: 1400px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: .7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+
+tr:hover {
+  background: rgba(56,189,248,.05);
+}
+
+.flag {
+  width: 38px;
+  border-radius: 4px;
+}
+
+.hidden {
+  filter: blur(6px);
+  cursor: pointer;
+}
+
+.quiz {
+  margin-top: 2rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.quiz h2 {
+  margin-top: 0;
+}
+
+.quiz-result {
+  margin-top: .6rem;
+  font-weight: 600;
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.mobile-study {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.card {
+  max-width: 320px;
+  margin: auto;
+  padding: 1.2rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.card img {
+  width: 120px;
+  border-radius: 8px;
+}
+
+.card h3 {
+  margin: .8rem 0 .4rem;
+}
+
+.card-controls {
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mobile-study {
+    display: none;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌍 Все страны мира</h1>
+  <p>Интерактивная таблица + режим обучения</p>
+</header>
+
+<div class="controls">
+  <input id="search" placeholder="Поиск страны">
+  <select id="region">
+    <option value="">Все регионы</option>
+    <option value="Europe">Европа</option>
+    <option value="Asia">Азия</option>
+    <option value="Africa">Африка</option>
+    <option value="Americas">Америка</option>
+    <option value="Oceania">Океания</option>
+  </select>
+  <button id="study">🎓 Режим обучения</button>
+  <button id="theme">🌗 Тема</button>
+</div>
+
+<main>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+  <th>Флаг</th>
+  <th>Страна</th>
+  <th>Столица</th>
+  <th>Регион</th>
+  <th>Население</th>
+  <th>Языки</th>
+  <th>Карта</th>
+</tr>
+</thead>
+<tbody id="countries"></tbody>
+</table>
+</div>
+
+<div class="quiz">
+  <h2>🎯 Квиз: угадай столицу</h2>
+  <div id="quizCountry"></div>
+  <input id="quizInput" placeholder="Введи столицу">
+  <button onclick="checkQuiz()">Проверить</button>
+  <div class="quiz-result" id="quizResult"></div>
+</div>
+
+<section class="mobile-study">
+  <h2>📱 Карточки стран</h2>
+
+  <div class="card" id="card">
+    <img id="cardFlag">
+    <h3 id="cardCountry"></h3>
+    <p id="cardCapital" class="hidden">Столица: <b></b></p>
+    <button onclick="showAnswer()">Показать столицу</button>
+  </div>
+
+  <div class="card-controls">
+    <button onclick="nextCard()">➡️ Далее</button>
+  </div>
+</section>
+
+
+</main>
+
+<footer>
+  Учёба • Практика • География без боли
+</footer>
+<script>
+const tbody = document.getElementById("countries");
+const search = document.getElementById("search");
+const region = document.getElementById("region");
+const studyBtn = document.getElementById("study");
+const themeBtn = document.getElementById("theme");
+
+let countries = [];
+let studyMode = false;
+let quizCountry = null;
+
+const CACHE_KEY = "countries_cache_v1";
+const cached = localStorage.getItem(CACHE_KEY);
+
+if (cached) {
+  countries = JSON.parse(cached);
+  render(countries);
+  newQuiz();
+} else {
+  // Загружаем данные, если кэша нет
+  fetch("https://restcountries.com/v3.1/all?fields=name,capital,region,population,languages,flags,maps")
+    .then(r => r.json())
+    .then(data => {
+      countries = data.sort((a,b)=>a.name.common.localeCompare(b.name.common));
+      localStorage.setItem(CACHE_KEY, JSON.stringify(countries));
+      render(countries);
+      newQuiz();
+    })
+    .catch(() => {
+      alert("Нет интернета и нет сохранённых данных 😢");
+    });
+}
+
+function render(list) {
+  tbody.innerHTML = "";
+  list.forEach(c => {
+    const tr = document.createElement("tr");
+    // ИСПОЛЬЗУЕМ ОБРАТНЫЕ КАВЫЧКИ ` ВМЕСТО <>
+    tr.innerHTML = `
+      <td><img class="flag" src="${c.flags.svg}"/></td>
+      <td><b>${c.name.common}</b></td>
+      <td class="${studyMode ? 'hidden' : ''}" onclick="this.classList.remove('hidden')">
+        ${c.capital ? c.capital[0] : "—"}
+      </td>
+      <td>${c.region}</td>
+      <td>${c.population.toLocaleString("ru-RU")}</td>
+      <td>${c.languages ? Object.values(c.languages).join(", ") : "—"}</td>
+      <td><a href="${c.maps.googleMaps}" target="_blank">Открыть</a></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filter() {
+  render(countries.filter(c =>
+    c.name.common.toLowerCase().includes(search.value.toLowerCase()) &&
+    (!region.value || c.region === region.value)
+  ));
+}
+
+search.oninput = filter;
+region.onchange = filter;
+
+studyBtn.onclick = () => {
+  studyMode = !studyMode;
+  render(countries);
+};
+
+themeBtn.onclick = () => {
+  document.body.classList.toggle("light");
+  localStorage.theme = document.body.classList.contains("light");
+};
+
+if (localStorage.theme === "true") {
+  document.body.classList.add("light");
+}
+
+function newQuiz() {
+  if (countries.length === 0) return;
+  quizCountry = countries[Math.floor(Math.random()*countries.length)];
+  document.getElementById("quizCountry").textContent =
+    "Страна: " + quizCountry.name.common;
+}
+
+function checkQuiz() {
+  const input = document.getElementById("quizInput").value.trim().toLowerCase();
+  const answer = quizCountry.capital ? quizCountry.capital[0].toLowerCase() : "";
+  const result = document.getElementById("quizResult");
+
+  if (input === answer) {
+    result.textContent = "✅ Верно!";
+    result.style.color = "#4ade80";
+  } else {
+    result.textContent = "❌ Неверно. Правильно: " + (quizCountry.capital ? quizCountry.capital[0] : "нет столицы");
+    result.style.color = "#f87171";
+  }
+
+  document.getElementById("quizInput").value = "";
+  setTimeout(newQuiz, 2000); // Новая страна через 2 сек
+}
+
+function loadCard() {
+  if (countries.length === 0) return;
+  const c = countries[Math.floor(Math.random() * countries.length)];
+  document.getElementById("cardFlag").src = c.flags.svg;
+  document.getElementById("cardCountry").textContent = c.name.common;
+
+  const cap = document.getElementById("cardCapital");
+  cap.classList.add("hidden");
+  cap.querySelector("b").textContent = c.capital ? c.capital[0] : "—";
+}
+
+function showAnswer() {
+  document.getElementById("cardCapital").classList.remove("hidden");
+}
+
+function nextCard() {
+  loadCard();
+}
+
+// Запуск карточек после загрузки данных
+setTimeout(() => {
+    if (countries.length > 0) loadCard();
+}, 1500);
+
+</script>
+
+</body>
+</html>
