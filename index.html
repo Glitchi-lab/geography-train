@@ -259,35 +259,15 @@ let countries = [];
 let studyMode = false;
 let quizCountry = null;
 
-const CACHE_KEY = "countries_cache_v1";
-const cached = localStorage.getItem(CACHE_KEY);
-
-if (cached) {
-  countries = JSON.parse(cached);
-  render(countries);
-  newQuiz();
-} else {
-  // Загружаем данные, если кэша нет
-  fetch("https://restcountries.com/v3.1/all?fields=name,capital,region,population,languages,flags,maps")
-    .then(r => r.json())
-    .then(data => {
-      countries = data.sort((a,b)=>a.name.common.localeCompare(b.name.common));
-      localStorage.setItem(CACHE_KEY, JSON.stringify(countries));
-      render(countries);
-      newQuiz();
-    })
-    .catch(() => {
-      alert("Нет интернета и нет сохранённых данных 😢");
-    });
-}
-
+// Функция отрисовки (исправленная!)
 function render(list) {
+  if (!tbody) return;
   tbody.innerHTML = "";
   list.forEach(c => {
     const tr = document.createElement("tr");
-    // ИСПОЛЬЗУЕМ ОБРАТНЫЕ КАВЫЧКИ ` ВМЕСТО <>
+    // Используем только обратные кавычки `
     tr.innerHTML = `
-      <td><img class="flag" src="${c.flags.svg}"/></td>
+      <td><img class="flag" src="${c.flags.svg}" style="width:30px"></td>
       <td><b>${c.name.common}</b></td>
       <td class="${studyMode ? 'hidden' : ''}" onclick="this.classList.remove('hidden')">
         ${c.capital ? c.capital[0] : "—"}
@@ -301,11 +281,28 @@ function render(list) {
   });
 }
 
+// Загрузка данных
+fetch("https://restcountries.com/v3.1/all?fields=name,capital,region,population,languages,flags,maps")
+  .then(r => r.json())
+  .then(data => {
+    countries = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    render(countries);
+    newQuiz();
+    loadCard(); // Запускаем карточки ТОЛЬКО после загрузки данных
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Ошибка загрузки данных. Проверь интернет!");
+  });
+
 function filter() {
-  render(countries.filter(c =>
-    c.name.common.toLowerCase().includes(search.value.toLowerCase()) &&
-    (!region.value || c.region === region.value)
-  ));
+  const term = search.value.toLowerCase();
+  const reg = region.value;
+  const filtered = countries.filter(c =>
+    c.name.common.toLowerCase().includes(term) &&
+    (!reg || c.region === reg)
+  );
+  render(filtered);
 }
 
 search.oninput = filter;
@@ -318,61 +315,42 @@ studyBtn.onclick = () => {
 
 themeBtn.onclick = () => {
   document.body.classList.toggle("light");
-  localStorage.theme = document.body.classList.contains("light");
 };
-
-if (localStorage.theme === "true") {
-  document.body.classList.add("light");
-}
 
 function newQuiz() {
   if (countries.length === 0) return;
-  quizCountry = countries[Math.floor(Math.random()*countries.length)];
-  document.getElementById("quizCountry").textContent =
-    "Страна: " + quizCountry.name.common;
+  quizCountry = countries[Math.floor(Math.random() * countries.length)];
+  document.getElementById("quizCountry").textContent = "Страна: " + quizCountry.name.common;
 }
 
-function checkQuiz() {
+window.checkQuiz = function() {
   const input = document.getElementById("quizInput").value.trim().toLowerCase();
-  const answer = quizCountry.capital ? quizCountry.capital[0].toLowerCase() : "";
+  const answer = (quizCountry && quizCountry.capital) ? quizCountry.capital[0].toLowerCase() : "";
   const result = document.getElementById("quizResult");
 
   if (input === answer) {
     result.textContent = "✅ Верно!";
-    result.style.color = "#4ade80";
   } else {
-    result.textContent = "❌ Неверно. Правильно: " + (quizCountry.capital ? quizCountry.capital[0] : "нет столицы");
-    result.style.color = "#f87171";
+    result.textContent = "❌ Нет. Правильно: " + (quizCountry.capital ? quizCountry.capital[0] : "—");
   }
-
   document.getElementById("quizInput").value = "";
-  setTimeout(newQuiz, 2000); // Новая страна через 2 сек
-}
+  setTimeout(newQuiz, 2000);
+};
+
+window.nextCard = function() { loadCard(); };
+window.showAnswer = function() {
+  document.getElementById("cardCapital").classList.remove("hidden");
+};
 
 function loadCard() {
   if (countries.length === 0) return;
   const c = countries[Math.floor(Math.random() * countries.length)];
   document.getElementById("cardFlag").src = c.flags.svg;
   document.getElementById("cardCountry").textContent = c.name.common;
-
   const cap = document.getElementById("cardCapital");
   cap.classList.add("hidden");
   cap.querySelector("b").textContent = c.capital ? c.capital[0] : "—";
 }
-
-function showAnswer() {
-  document.getElementById("cardCapital").classList.remove("hidden");
-}
-
-function nextCard() {
-  loadCard();
-}
-
-// Запуск карточек после загрузки данных
-setTimeout(() => {
-    if (countries.length > 0) loadCard();
-}, 1500);
-
 </script>
 
 </body>
